@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>bpxmodelo347</name>
+	<displayName><![CDATA[BPX Modelo 347]]></displayName>
+	<version><![CDATA[0.0.1]]></version>
+	<description><![CDATA[Obtine la facturación de todos los clientes que han comprado mas de 3005€ al año para presentar el Modelo 347 ante la Agencia Tributaria]]></description>
+	<author><![CDATA[juanfer@bioprox.es]]></author>
+	<tab><![CDATA[administration]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
