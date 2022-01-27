@@ -41,7 +41,7 @@ class Bpxmodelo347 extends Module
     {
         $this->name = 'bpxmodelo347';
         $this->tab = 'administration';
-        $this->version = '1.0.0';
+        $this->version = '1.1.0';
         $this->author = 'juanfer@bioprox.es';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
@@ -63,6 +63,8 @@ class Bpxmodelo347 extends Module
 
         Configuration::updateValue('BPXMODELO347', true);
 
+        $this->createTabs();
+
         return parent::install();
     }
 
@@ -70,7 +72,85 @@ class Bpxmodelo347 extends Module
     {
         Configuration::deleteByName('BPXMODELO347');
 
+        $this->deleteTabs();
+
         return parent::uninstall();
+    }
+
+    /**
+     * Create Tabs
+     */
+    public function createTabs()
+    {
+        // Tabs
+        $idTabs = array();
+        $idTabs[] = Tab::getIdFromClassName('AdminModelo347');
+        $idTabs[] = Tab::getIdFromClassName('AdminModelo347Setting');
+
+        foreach ($idTabs as $idTab) {
+            if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+            }
+        }
+
+        // Tab Menu
+        if (!Tab::getIdFromClassName('AdminBPXLABS')) {
+            $parent_tab = new Tab();
+            $parent_tab->name = array();
+            foreach (Language::getLanguages(true) as $lang)
+                $parent_tab->name[$lang['id_lang']] = $this->l('BPXLABS');
+
+            $parent_tab->class_name = 'AdminBPXLABS';
+            $parent_tab->id_parent = 0;
+            $parent_tab->module = $this->name;
+            $parent_tab->add();
+
+            $id_full_parent = $parent_tab->id;
+        } else {
+            $id_full_parent = Tab::getIdFromClassName('AdminBPXLABS');
+        }
+        
+        // Tab Principal Modelo 347
+        $parent = new Tab();
+        $parent->name = array();
+        foreach (Language::getLanguages(true) as $lang)
+            $parent->name[$lang['id_lang']] = $this->l('Modelo 347');
+
+        $parent->class_name = 'AdminModelo347';
+        $parent->id_parent = $id_full_parent;
+        $parent->module = $this->name;
+        $parent->icon = 'account_balance';
+        $parent->add();
+
+        // Configuración
+        $tab_config = new Tab();
+        $tab_config->name = array();
+        foreach (Language::getLanguages(true) as $lang)
+            $tab_config->name[$lang['id_lang']] = $this->l('Configuración');
+
+        $tab_config->class_name = 'AdminModelo347Setting';
+        $tab_config->id_parent = $parent->id;
+        $tab_config->module = $this->name;
+        $tab_config->add();
+    }
+
+    /**
+     * Delete Tabs
+     */
+    public function deleteTabs()
+    {
+        // Tabs
+        $idTabs = array();
+        $idTabs[] = Tab::getIdFromClassName('AdminModelo347');
+        $idTabs[] = Tab::getIdFromClassName('AdminModelo347Setting');
+
+        foreach ($idTabs as $idTab) {
+            if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+            }
+        }
     }
 
     //-----------------------------------------------------
@@ -89,7 +169,7 @@ class Bpxmodelo347 extends Module
             $this->context->smarty->assign('annio', $annio);
 
             //obtener registro de datos ventas anuales por cliente
-            $ventas = Db::getInstance()->executeS('SELECT o.id_customer, c.firstname, c.lastname, o.id_address_invoice, COUNT(o.id_order) AS num_pedidos, ROUND(SUM(o.total_paid),2) AS total_347 FROM '._DB_PREFIX_.'orders o INNER JOIN '._DB_PREFIX_.'customer c ON o.id_customer = c.id_customer WHERE  YEAR(o.invoice_date) = '.$annio.' AND o.current_state!=6 AND o.id_customer!=4  GROUP BY id_customer HAVING SUM(o.total_paid) > 3005');
+            $ventas = Db::getInstance()->executeS('SELECT o.id_customer, c.firstname, c.lastname, o.id_address_invoice, COUNT(o.id_order) AS num_pedidos, ROUND(SUM(o.total_paid),2) AS total_347 FROM '._DB_PREFIX_.'orders o INNER JOIN '._DB_PREFIX_.'customer c ON o.id_customer = c.id_customer WHERE  YEAR(o.invoice_date) = '.$annio.' AND o.current_state!=6 GROUP BY id_customer HAVING SUM(o.total_paid) > 3.005');
             //dump($ventas);
             if(!empty($ventas)){
                 $this->context->smarty->assign('ventas', $ventas);
